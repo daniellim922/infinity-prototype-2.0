@@ -1,5 +1,6 @@
 import type { Step } from "@/components/ui/stepper";
 import { Stepper } from "@/components/ui/stepper";
+import { InsuranceAdviceCard } from "@/components/insurance-advice-card";
 
 const STEP_DATA: Step[] = [
     {
@@ -50,7 +51,7 @@ const STEP_DATA: Step[] = [
 
 export default function Home() {
     return (
-        <div className="">
+        <>
             <header className="bg-neutral-100 px-48 py-12 mx-auto flex max-w-8xl flex-col gap-4">
                 <Stepper steps={STEP_DATA} />
                 <div>
@@ -65,6 +66,9 @@ export default function Home() {
                     </p>
                 </div>
             </header>
-        </div>
+            <section className="px-48 py-12 mx-auto flex max-w-8xl flex-col gap-4">
+                <InsuranceAdviceCard />
+            </section>
+        </>
     );
 }
