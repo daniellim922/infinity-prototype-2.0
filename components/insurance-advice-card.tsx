@@ -21,6 +21,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { RocketIcon } from "lucide-react";
+
+const INTEGRATION_INSURERS = ["singlife", "fwd", "aia"] as const;
 
 const PREMIUM_FREQUENCY_OPTIONS = [
     "Monthly",
@@ -52,6 +62,12 @@ export function InsuranceAdviceCard() {
     );
     const [forWhom, setForWhom] = useState<string | null>(null);
     const [settlementMode, setSettlementMode] = useState<string | null>(null);
+    const [insurer, setInsurer] = useState<string | null>(null);
+    const [integrationModeOn, setIntegrationModeOn] = useState(false);
+    const [showIntegrationModal, setShowIntegrationModal] = useState(false);
+
+    const showIntegrationSwitch =
+        insurer !== null && INTEGRATION_INSURERS.includes(insurer as (typeof INTEGRATION_INSURERS)[number]);
 
     return (
         <Card>
@@ -91,12 +107,17 @@ export function InsuranceAdviceCard() {
                                             Recommend IP Rider only
                                         </FieldLabel>
                                     </Field>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-4 items-end">
                                         <Field>
                                             <FieldLabel htmlFor="insurer">
                                                 Insurer
                                             </FieldLabel>
-                                            <Select>
+                                            <Select
+                                                value={insurer ?? undefined}
+                                                onValueChange={(v) => {
+                                                    setInsurer(v);
+                                                    setIntegrationModeOn(false);
+                                                }}>
                                                 <SelectTrigger
                                                     id="insurer"
                                                     className="w-full">
@@ -118,24 +139,102 @@ export function InsuranceAdviceCard() {
                                                 </SelectContent>
                                             </Select>
                                         </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="plan">
-                                                Plan Recommended
-                                            </FieldLabel>
-                                            <Select>
-                                                <SelectTrigger
-                                                    id="plan"
-                                                    className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="ultimate-critical-cover">
-                                                        Ultimate Critical Cover
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
+                                        {showIntegrationSwitch ? (
+                                            <Field className="flex flex-col justify-end">
+                                                <div className="flex items-center gap-2">
+                                                    <Switch
+                                                        size="lg"
+                                                        thumbIcon={
+                                                            <RocketIcon />
+                                                        }
+                                                        checked={integrationModeOn}
+                                                        onCheckedChange={(
+                                                            checked,
+                                                        ) => {
+                                                            setIntegrationModeOn(
+                                                                checked,
+                                                            );
+                                                            if (checked) {
+                                                                setShowIntegrationModal(
+                                                                    true,
+                                                                );
+                                                            }
+                                                        }}
+                                                        className={
+                                                            integrationModeOn
+                                                                ? "data-[state=checked]:bg-blue-500!"
+                                                                : ""
+                                                        }
+                                                    />
+                                                    <span
+                                                        className={
+                                                            integrationModeOn
+                                                                ? "text-blue-500"
+                                                                : ""
+                                                        }>
+                                                        Integration mode
+                                                        available
+                                                    </span>
+                                                </div>
+                                            </Field>
+                                        ) : (
+                                            <Field>
+                                                <FieldLabel htmlFor="plan">
+                                                    Plan Recommended
+                                                </FieldLabel>
+                                                <Select>
+                                                    <SelectTrigger
+                                                        id="plan"
+                                                        className="w-full">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="ultimate-critical-cover">
+                                                            Ultimate Critical
+                                                            Cover
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </Field>
+                                        )}
                                     </div>
+                                    {showIntegrationSwitch && (
+                                        <div className="grid grid-cols-2 gap-4 items-end">
+                                            <Field>
+                                                <FieldLabel htmlFor="plan">
+                                                    Plan Recommended
+                                                </FieldLabel>
+                                                <Select>
+                                                    <SelectTrigger
+                                                        id="plan"
+                                                        className="w-full">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="ultimate-critical-cover">
+                                                            Ultimate Critical
+                                                            Cover
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </Field>
+                                        </div>
+                                    )}
+
+                                    <Dialog
+                                        open={showIntegrationModal}
+                                        onOpenChange={setShowIntegrationModal}>
+                                        <DialogContent
+                                            showCloseButton={true}
+                                            className="sm:max-w-sm">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    Use Insurer&apos;s
+                                                    Integration
+                                                </DialogTitle>
+                                            </DialogHeader>
+                                        </DialogContent>
+                                    </Dialog>
 
                                     {/* Row 2: Sum Assured + checkbox, Policy Term */}
                                     <div className="grid grid-cols-2 gap-4">
@@ -370,7 +469,7 @@ export function InsuranceAdviceCard() {
                             <div className="shrink-0 border-t p-4 flex justify-center">
                                 <Button
                                     size="lg"
-                                    className="w-fit rounded-full bg-blue-600 text-white hover:bg-blue-500 px-24 py-6 text-base">
+                                    className="w-fit rounded-full bg-blue-700 text-white hover:bg-blue-600 px-24 py-6 text-base">
                                     Save Insurance Advice
                                 </Button>
                             </div>
