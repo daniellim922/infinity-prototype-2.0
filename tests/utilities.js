@@ -6,6 +6,7 @@ async function fillTextField(page, data, placeholder) {
   await dobInput.waitFor({ state: "visible", timeout: 5000 });
   await dobInput.clear();
   await dobInput.fill(data);
+  await dobInput.press("Tab");
   await page.waitForTimeout(500);
   console.log(`${placeholder} field filled successfully`);
 }

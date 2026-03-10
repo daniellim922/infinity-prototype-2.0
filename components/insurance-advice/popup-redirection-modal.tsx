@@ -33,17 +33,17 @@ export function PopupRedirectionModal({
             if (!res.ok) {
                 throw new Error(data.details || data.error || "Failed to run");
             }
-            onOpenChange(false);
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong");
         } finally {
-            setIsLoading(false);
+            // setIsLoading(false);
         }
     }
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className="sm:max-w-3xl py-8 px-6"
+                showCloseButton={false}
                 onPointerDownOutside={(e) => e.preventDefault()}
                 onInteractOutside={(e) => e.preventDefault()}>
                 <DialogHeader>

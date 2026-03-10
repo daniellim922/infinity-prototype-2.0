@@ -32,7 +32,7 @@ export function DeclarationDialog({
                 <p className="text-base text-muted-foreground">
                     AIA Singapore Pte. Ltd. is requesting the following
                     information for the purpose of submitting a quotation on
-                    Singlife&apos;s Ezsub system.
+                    AIA&apos;s Ezsub system.
                 </p>
                 <Card>
                     <CardHeader>
@@ -66,7 +66,7 @@ export function DeclarationDialog({
                                 Date of Birth
                             </span>
                             <span className="ml-auto font-medium">
-                                07/08/1996
+                                29/04/2000
                             </span>
                         </div>
                         <div className="flex justify-between gap-4">
@@ -80,7 +80,7 @@ export function DeclarationDialog({
                                 Nationality
                             </span>
                             <span className="ml-auto font-medium">
-                                Singapore
+                                Singaporean
                             </span>
                         </div>
                         <div className="flex justify-between gap-4">
@@ -94,7 +94,7 @@ export function DeclarationDialog({
                                 Occupation
                             </span>
                             <span className="ml-auto font-medium">
-                                Technician
+                                Accountant
                             </span>
                         </div>
                     </CardContent>
