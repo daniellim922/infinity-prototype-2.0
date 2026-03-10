@@ -193,7 +193,7 @@ export function InsuranceAdviceSheet({
                                 </FieldLabel>
                                 <Input
                                     id="policy-term"
-                                    type="number"
+                                    type="text"
                                     disabled={integrationModeOn}
                                 />
                             </Field>

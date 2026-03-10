@@ -3,7 +3,11 @@ import { profilesTest } from "../data/profilesTest.js";
 
 import { fillKnowYouBetterForm } from "./fillPage.js";
 
-import { clickOnBtn } from "./utilities.js";
+import {
+    clickOnBtn,
+    extractPlanSelectionData,
+    replaceNextWithSubmitButton,
+} from "./utilities.js";
 
 const testData = process.env.TEST_DATA
     ? JSON.parse(process.env.TEST_DATA)
@@ -15,7 +19,7 @@ for (const profile of profilesToRun) {
     const { knowYouBetterFormData, profileName } = profile;
 
     test(`fill AIA form for ${profileName}`, async ({ page }) => {
-        test.setTimeout(120000);
+        test.setTimeout(7200000); // 2 hour — wait for user to click Submit
 
         console.log("Navigating to AIA insurance page...");
         await page.goto("https://insure.aia.com.sg/aianow3/ucc?f=26068&i=agy");
@@ -31,10 +35,8 @@ for (const profile of profilesToRun) {
             path: `tests/screenshots/${profileName}/2-know-you-better-form-filled.png`,
             fullPage: true,
         });
-
-        console.log("Test completed successfully!");
-
-        // Keep browser open - wait 1 hour so user can interact with the filled form
-        await new Promise((r) => setTimeout(r, 3600000));
+        const planData = await extractPlanSelectionData(page);
+        await replaceNextWithSubmitButton(page, planData);
+        console.log("Test completed successfully! Browser will close.");
     });
 }

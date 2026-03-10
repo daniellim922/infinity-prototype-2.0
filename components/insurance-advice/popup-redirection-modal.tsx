@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -23,6 +23,13 @@ export function PopupRedirectionModal({
 }: PopupRedirectionModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        };
+    }, []);
 
     async function handleOkClick() {
         setIsLoading(true);
@@ -33,11 +40,35 @@ export function PopupRedirectionModal({
             if (!res.ok) {
                 throw new Error(data.details || data.error || "Failed to run");
             }
+            pollForQuoteResult();
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong");
         } finally {
             // setIsLoading(false);
         }
+    }
+
+    async function pollForQuoteResult() {
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = setInterval(async () => {
+            try {
+                const res = await fetch("/api/aia-quote-result");
+                const data = await res.json();
+                if (
+                    data?.premiumTerm != null ||
+                    data?.sumAssured != null ||
+                    data?.premiums != null
+                ) {
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current);
+                        pollIntervalRef.current = null;
+                    }
+                    console.log("AIA quote result received:", data);
+                }
+            } catch {
+                // ignore poll errors
+            }
+        }, 2000);
     }
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
