@@ -6,55 +6,12 @@ import { Button } from "@/components/ui/button";
 import {
     Sheet,
     SheetContent,
-    SheetHeader,
-    SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { RocketIcon } from "lucide-react";
-
-const INTEGRATION_INSURERS = ["singlife", "fwd", "aia"] as const;
-
-const PREMIUM_FREQUENCY_OPTIONS = [
-    "Monthly",
-    "Quarterly",
-    "Semi-Annual",
-    "Yearly",
-    "Single Premium",
-] as const;
-
-const FOR_WHOM_OPTIONS = [
-    "Yourself",
-    "Spouse",
-    "Joint",
-    "Child",
-    "Parent",
-] as const;
-
-const SETTLEMENT_MODE_OPTIONS = [
-    "Cheque/CC/Bank Transfer",
-    "SRS",
-    "CPF OA",
-    "CPF SA",
-    "CPF MA",
-] as const;
+import { IntegrationModal } from "@/components/insurance-advice/integration-modal";
+import { DeclarationDialog } from "@/components/insurance-advice/declaration-dialog";
+import { PopupRedirectionModal } from "@/components/insurance-advice/popup-redirection-modal";
+import { InsuranceAdviceSheet } from "@/components/insurance-advice/insurance-advice-sheet";
 
 export function InsuranceAdviceCard() {
     const [premiumFrequency, setPremiumFrequency] = useState<string | null>(
@@ -65,12 +22,9 @@ export function InsuranceAdviceCard() {
     const [insurer, setInsurer] = useState<string | null>(null);
     const [integrationModeOn, setIntegrationModeOn] = useState(false);
     const [showIntegrationModal, setShowIntegrationModal] = useState(false);
-
-    const showIntegrationSwitch =
-        insurer !== null &&
-        INTEGRATION_INSURERS.includes(
-            insurer as (typeof INTEGRATION_INSURERS)[number],
-        );
+    const [showDeclarationDialog, setShowDeclarationDialog] = useState(false);
+    const [showPopupRedirectionModal, setShowPopupRedirectionModal] =
+        useState(false);
 
     return (
         <Card>
@@ -89,486 +43,57 @@ export function InsuranceAdviceCard() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent className="flex flex-col data-[side=right]:sm:max-w-6xl">
-                        <div className="flex flex-1 min-h-0 flex-col">
-                            <div className="flex-1 overflow-y-auto min-h-0">
-                                <SheetHeader>
-                                    <SheetTitle className="text-xl">
-                                        For insurance Advice
-                                    </SheetTitle>
-                                </SheetHeader>
-                                <FieldGroup className="gap-4 p-4">
-                                    {/* Row 1: Checkbox, Insurer, Plan Recommended */}
-                                    <Field orientation="horizontal">
-                                        <Checkbox
-                                            id="ip-rider"
-                                            name="ip-rider"
-                                            className="size-5 border-[3px]"
-                                            disabled={integrationModeOn}
-                                        />
-                                        <FieldLabel
-                                            htmlFor="ip-rider"
-                                            className="font-normal text-lg">
-                                            Recommend IP Rider only
-                                        </FieldLabel>
-                                    </Field>
-                                    <div className="grid grid-cols-2 gap-4 items-end">
-                                        <Field>
-                                            <FieldLabel htmlFor="insurer">
-                                                Insurer
-                                            </FieldLabel>
-                                            <Select
-                                                value={insurer ?? undefined}
-                                                onValueChange={(v) => {
-                                                    setInsurer(v);
-                                                    setIntegrationModeOn(false);
-                                                }}>
-                                                <SelectTrigger
-                                                    id="insurer"
-                                                    className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="hsbc-life">
-                                                        HSBC Life
-                                                    </SelectItem>
-                                                    <SelectItem value="singlife">
-                                                        Singlife
-                                                    </SelectItem>
-                                                    <SelectItem value="fwd">
-                                                        FWD
-                                                    </SelectItem>
-                                                    <SelectItem value="aia">
-                                                        AIA
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
-                                        {showIntegrationSwitch ? (
-                                            <Field className="flex flex-col justify-end">
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        size="lg"
-                                                        thumbIcon={
-                                                            <RocketIcon />
-                                                        }
-                                                        checked={
-                                                            integrationModeOn
-                                                        }
-                                                        onCheckedChange={(
-                                                            checked,
-                                                        ) => {
-                                                            setIntegrationModeOn(
-                                                                checked,
-                                                            );
-                                                            if (checked) {
-                                                                setShowIntegrationModal(
-                                                                    true,
-                                                                );
-                                                            }
-                                                        }}
-                                                        className={
-                                                            integrationModeOn
-                                                                ? "data-[state=checked]:bg-blue-500!"
-                                                                : ""
-                                                        }
-                                                    />
-                                                    <span
-                                                        className={
-                                                            integrationModeOn
-                                                                ? "text-blue-500"
-                                                                : ""
-                                                        }>
-                                                        Integration mode
-                                                        available
-                                                    </span>
-                                                </div>
-                                            </Field>
-                                        ) : (
-                                            <Field>
-                                                <FieldLabel htmlFor="plan">
-                                                    Plan Recommended
-                                                </FieldLabel>
-                                                <Select
-                                                    disabled={
-                                                        integrationModeOn
-                                                    }>
-                                                    <SelectTrigger
-                                                        id="plan"
-                                                        className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="ultimate-critical-cover">
-                                                            Ultimate Critical
-                                                            Cover
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </Field>
-                                        )}
-                                    </div>
-                                    {showIntegrationSwitch && (
-                                        <div className="grid grid-cols-2 gap-4 items-end">
-                                            <Field>
-                                                <FieldLabel htmlFor="plan">
-                                                    Plan Recommended
-                                                </FieldLabel>
-                                                <Select
-                                                    disabled={
-                                                        integrationModeOn
-                                                    }>
-                                                    <SelectTrigger
-                                                        id="plan"
-                                                        className="w-full">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="ultimate-critical-cover">
-                                                            Ultimate Critical
-                                                            Cover
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </Field>
-                                        </div>
-                                    )}
-
-                                    <Dialog
-                                        open={showIntegrationModal}
-                                        onOpenChange={setShowIntegrationModal}>
-                                        <DialogContent
-                                            showCloseButton={false}
-                                            className="sm:max-w-2xl text-center flex flex-col items-center py-12"
-                                            onPointerDownOutside={(e) =>
-                                                e.preventDefault()
-                                            }
-                                            onInteractOutside={(e) =>
-                                                e.preventDefault()
-                                            }>
-                                            <DialogHeader className="items-center">
-                                                <DialogTitle className="text-2xl">
-                                                    Use Insurer&apos;s
-                                                    Integration?
-                                                </DialogTitle>
-                                            </DialogHeader>
-                                            <p className="text-lg">
-                                                By Clicking "Yes", you will be
-                                                redirected to the insurer's
-                                                website, where you can generate
-                                                the quotation and application
-                                                after clicking{" "}
-                                                <span className="font-bold">
-                                                    "Create Quotation."
-                                                </span>
-                                            </p>
-                                            <div className="flex justify-center gap-2 pt-2">
-                                                <Button
-                                                    className="rounded-full px-8 bg-blue-700 text-white hover:bg-blue-600 text-lg"
-                                                    onClick={() => {
-                                                        setShowIntegrationModal(
-                                                            false,
-                                                        );
-                                                        setIntegrationModeOn(
-                                                            true,
-                                                        );
-                                                    }}>
-                                                    Yes
-                                                </Button>
-                                                <Button
-                                                    variant="secondary"
-                                                    onClick={() => {
-                                                        setShowIntegrationModal(
-                                                            false,
-                                                        );
-                                                        setIntegrationModeOn(
-                                                            false,
-                                                        );
-                                                    }}
-                                                    className="rounded-full px-8 text-lg">
-                                                    No
-                                                </Button>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-
-                                    {/* Row 2: Sum Assured + checkbox, Policy Term */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Field>
-                                            <FieldLabel htmlFor="sum-assured">
-                                                Sum Assured
-                                            </FieldLabel>
-                                            <div className="flex items-center gap-2">
-                                                <Input
-                                                    id="sum-assured"
-                                                    type="number"
-                                                    className="flex-1"
-                                                    disabled={
-                                                        integrationModeOn
-                                                    }
-                                                />
-                                                <Checkbox
-                                                    aria-label="Sum Assured option"
-                                                    className="size-5 border-[3px]"
-                                                    disabled={
-                                                        integrationModeOn
-                                                    }
-                                                />
-                                                <span>N.A.</span>
-                                            </div>
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="policy-term">
-                                                Policy Term
-                                            </FieldLabel>
-                                            <Input
-                                                id="policy-term"
-                                                type="number"
-                                                disabled={integrationModeOn}
-                                            />
-                                        </Field>
-                                    </div>
-
-                                    {/* Row 3: Premium Term, Minimum Investment Period */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Field>
-                                            <FieldLabel htmlFor="premium-term">
-                                                Premium Term
-                                            </FieldLabel>
-                                            <Input
-                                                id="premium-term"
-                                                type="number"
-                                                disabled={integrationModeOn}
-                                            />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="min-investment">
-                                                Minimum Investment Period (For
-                                                ILP)
-                                            </FieldLabel>
-                                            <Input
-                                                id="min-investment"
-                                                type="number"
-                                                disabled={integrationModeOn}
-                                            />
-                                        </Field>
-                                    </div>
-
-                                    {/* Row 4: Currency, Premium Amount */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Field>
-                                            <FieldLabel htmlFor="currency">
-                                                Currency
-                                            </FieldLabel>
-                                            <Select
-                                                defaultValue="sgd"
-                                                disabled={
-                                                    integrationModeOn
-                                                }>
-                                                <SelectTrigger
-                                                    id="currency"
-                                                    className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="sgd">
-                                                        SGD
-                                                    </SelectItem>
-                                                    <SelectItem value="usd">
-                                                        USD
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="premium-amount">
-                                                Premium Amount
-                                            </FieldLabel>
-                                            <Input
-                                                id="premium-amount"
-                                                type="number"
-                                                disabled={integrationModeOn}
-                                            />
-                                        </Field>
-                                    </div>
-
-                                    {/* Additional add-on rider */}
-                                    <div className="flex flex-col gap-2 items-center">
-                                        <p className="text-sm font-medium self-start">
-                                            Additional add-on rider
-                                        </p>
-                                        <Button
-                                            className="rounded-full px-12 bg-blue-600 text-white hover:bg-blue-500"
-                                            disabled={integrationModeOn}>
-                                            + Additional add-on rider
-                                        </Button>
-                                    </div>
-
-                                    {/* Row 5: Premium Frequency & For Whom - side by side */}
-                                    <div className="grid grid-cols-2 gap-8">
-                                        <Field>
-                                            <FieldLabel className="mb-2 block">
-                                                Premium Frequency
-                                            </FieldLabel>
-                                            <div className="flex flex-col gap-3">
-                                                {PREMIUM_FREQUENCY_OPTIONS.map(
-                                                    (opt) => (
-                                                        <Field
-                                                            key={opt}
-                                                            orientation="horizontal">
-                                                            <Checkbox
-                                                                id={`freq-${opt.toLowerCase().replace(/\s+/g, "-")}`}
-                                                                name="premium-frequency"
-                                                                className="size-5 border-[3px]"
-                                                                checked={
-                                                                    premiumFrequency ===
-                                                                    opt
-                                                                }
-                                                                onCheckedChange={() =>
-                                                                    setPremiumFrequency(
-                                                                        premiumFrequency ===
-                                                                            opt
-                                                                            ? null
-                                                                            : opt,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    integrationModeOn
-                                                                }
-                                                            />
-                                                            <FieldLabel
-                                                                htmlFor={`freq-${opt.toLowerCase().replace(/\s+/g, "-")}`}
-                                                                className="font-normal">
-                                                                {opt}
-                                                            </FieldLabel>
-                                                        </Field>
-                                                    ),
-                                                )}
-                                            </div>
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel className="mb-2 block">
-                                                For Whom
-                                            </FieldLabel>
-                                            <div className="flex flex-col gap-3">
-                                                {FOR_WHOM_OPTIONS.map((opt) => (
-                                                    <Field
-                                                        key={opt}
-                                                        orientation="horizontal">
-                                                        <Checkbox
-                                                            id={`whom-${opt.toLowerCase()}`}
-                                                            name="for-whom"
-                                                            className="size-5 border-[3px]"
-                                                            checked={
-                                                                forWhom === opt
-                                                            }
-                                                            onCheckedChange={() =>
-                                                                setForWhom(
-                                                                    forWhom ===
-                                                                        opt
-                                                                        ? null
-                                                                        : opt,
-                                                                )
-                                                            }
-                                                        />
-                                                        <FieldLabel
-                                                            htmlFor={`whom-${opt.toLowerCase()}`}
-                                                            className="font-normal">
-                                                            {opt}
-                                                        </FieldLabel>
-                                                    </Field>
-                                                ))}
-                                            </div>
-                                        </Field>
-                                    </div>
-
-                                    {integrationModeOn && (
-                                        <>
-                                            <div className="flex justify-center py-4">
-                                                <Button className="rounded-full px-8 bg-blue-600 text-white hover:bg-blue-500">
-                                                    Create Quotation
-                                                </Button>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground text-center">
-                                                * The above fields will be
-                                                auto-populated from Ezsub
-                                                system
-                                            </p>
-                                        </>
-                                    )}
-
-                                    {/* Settlement Mode */}
-                                    <Field>
-                                        <FieldLabel className="mb-2 block">
-                                            Settlement Mode
-                                        </FieldLabel>
-                                        <div className="flex flex-col gap-3">
-                                            {SETTLEMENT_MODE_OPTIONS.map(
-                                                (opt) => (
-                                                    <Field
-                                                        key={opt}
-                                                        orientation="horizontal">
-                                                        <Checkbox
-                                                            id={`settlement-${opt.toLowerCase().replace(/[\/\s]+/g, "-")}`}
-                                                            name="settlement-mode"
-                                                            className="size-5 border-[3px]"
-                                                            checked={
-                                                                settlementMode ===
-                                                                opt
-                                                            }
-                                                            onCheckedChange={() =>
-                                                                setSettlementMode(
-                                                                    settlementMode ===
-                                                                        opt
-                                                                        ? null
-                                                                        : opt,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                integrationModeOn
-                                                            }
-                                                        />
-                                                        <FieldLabel
-                                                            htmlFor={`settlement-${opt.toLowerCase().replace(/[\/\s]+/g, "-")}`}
-                                                            className="font-normal">
-                                                            {opt}
-                                                        </FieldLabel>
-                                                    </Field>
-                                                ),
-                                            )}
-                                        </div>
-                                    </Field>
-                                    <Field className="mt-5">
-                                        <FieldLabel
-                                            htmlFor="notes"
-                                            className="font-bold">
-                                            <span className="text-red-700">
-                                                Basis of Recommendations &
-                                                Benefits / Limitations:
-                                            </span>
-                                            <span className="text-sm ml-auto">
-                                                Max length limit 0/5000
-                                                characters
-                                            </span>
-                                        </FieldLabel>
-                                        <Textarea
-                                            id="notes"
-                                            rows={12}
-                                            className="min-h-[300px]"
-                                            disabled={integrationModeOn}
-                                        />
-                                    </Field>
-                                </FieldGroup>
-                            </div>
-                            <div className="shrink-0 border-t p-4 flex justify-center">
-                                <Button
-                                    size="lg"
-                                    className="w-fit rounded-full bg-blue-700 text-white hover:bg-blue-600 px-24 py-6 text-base">
-                                    Save Insurance Advice
-                                </Button>
-                            </div>
-                        </div>
+                        <InsuranceAdviceSheet
+                            premiumFrequency={premiumFrequency}
+                            setPremiumFrequency={setPremiumFrequency}
+                            forWhom={forWhom}
+                            setForWhom={setForWhom}
+                            settlementMode={settlementMode}
+                            setSettlementMode={setSettlementMode}
+                            insurer={insurer}
+                            integrationModeOn={integrationModeOn}
+                            onInsurerChange={(v) => {
+                                setInsurer(v);
+                                setIntegrationModeOn(false);
+                            }}
+                            onIntegrationSwitchChange={(checked) => {
+                                if (checked) {
+                                    setShowIntegrationModal(true);
+                                } else {
+                                    setIntegrationModeOn(false);
+                                }
+                            }}
+                            onCreateQuotation={() =>
+                                setShowDeclarationDialog(true)
+                            }
+                        />
                     </SheetContent>
                 </Sheet>
+                <IntegrationModal
+                    open={showIntegrationModal}
+                    onOpenChange={setShowIntegrationModal}
+                    onYes={() => {
+                        setShowIntegrationModal(false);
+                        setIntegrationModeOn(true);
+                    }}
+                    onNo={() => {
+                        setShowIntegrationModal(false);
+                        setIntegrationModeOn(false);
+                    }}
+                />
+                <DeclarationDialog
+                    open={showDeclarationDialog}
+                    onOpenChange={setShowDeclarationDialog}
+                    onCancel={() => setShowDeclarationDialog(false)}
+                    onGenerateQuotation={() => {
+                        setShowDeclarationDialog(false);
+                        setShowPopupRedirectionModal(true);
+                    }}
+                />
+                <PopupRedirectionModal
+                    open={showPopupRedirectionModal}
+                    onOpenChange={setShowPopupRedirectionModal}
+                />
             </CardContent>
         </Card>
     );
