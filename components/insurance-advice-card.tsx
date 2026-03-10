@@ -67,7 +67,10 @@ export function InsuranceAdviceCard() {
     const [showIntegrationModal, setShowIntegrationModal] = useState(false);
 
     const showIntegrationSwitch =
-        insurer !== null && INTEGRATION_INSURERS.includes(insurer as (typeof INTEGRATION_INSURERS)[number]);
+        insurer !== null &&
+        INTEGRATION_INSURERS.includes(
+            insurer as (typeof INTEGRATION_INSURERS)[number],
+        );
 
     return (
         <Card>
@@ -100,6 +103,7 @@ export function InsuranceAdviceCard() {
                                             id="ip-rider"
                                             name="ip-rider"
                                             className="size-5 border-[3px]"
+                                            disabled={integrationModeOn}
                                         />
                                         <FieldLabel
                                             htmlFor="ip-rider"
@@ -147,7 +151,9 @@ export function InsuranceAdviceCard() {
                                                         thumbIcon={
                                                             <RocketIcon />
                                                         }
-                                                        checked={integrationModeOn}
+                                                        checked={
+                                                            integrationModeOn
+                                                        }
                                                         onCheckedChange={(
                                                             checked,
                                                         ) => {
@@ -182,7 +188,10 @@ export function InsuranceAdviceCard() {
                                                 <FieldLabel htmlFor="plan">
                                                     Plan Recommended
                                                 </FieldLabel>
-                                                <Select>
+                                                <Select
+                                                    disabled={
+                                                        integrationModeOn
+                                                    }>
                                                     <SelectTrigger
                                                         id="plan"
                                                         className="w-full">
@@ -204,7 +213,10 @@ export function InsuranceAdviceCard() {
                                                 <FieldLabel htmlFor="plan">
                                                     Plan Recommended
                                                 </FieldLabel>
-                                                <Select>
+                                                <Select
+                                                    disabled={
+                                                        integrationModeOn
+                                                    }>
                                                     <SelectTrigger
                                                         id="plan"
                                                         className="w-full">
@@ -225,14 +237,57 @@ export function InsuranceAdviceCard() {
                                         open={showIntegrationModal}
                                         onOpenChange={setShowIntegrationModal}>
                                         <DialogContent
-                                            showCloseButton={true}
-                                            className="sm:max-w-sm">
-                                            <DialogHeader>
-                                                <DialogTitle>
+                                            showCloseButton={false}
+                                            className="sm:max-w-2xl text-center flex flex-col items-center py-12"
+                                            onPointerDownOutside={(e) =>
+                                                e.preventDefault()
+                                            }
+                                            onInteractOutside={(e) =>
+                                                e.preventDefault()
+                                            }>
+                                            <DialogHeader className="items-center">
+                                                <DialogTitle className="text-2xl">
                                                     Use Insurer&apos;s
-                                                    Integration
+                                                    Integration?
                                                 </DialogTitle>
                                             </DialogHeader>
+                                            <p className="text-lg">
+                                                By Clicking "Yes", you will be
+                                                redirected to the insurer's
+                                                website, where you can generate
+                                                the quotation and application
+                                                after clicking{" "}
+                                                <span className="font-bold">
+                                                    "Create Quotation."
+                                                </span>
+                                            </p>
+                                            <div className="flex justify-center gap-2 pt-2">
+                                                <Button
+                                                    className="rounded-full px-8 bg-blue-700 text-white hover:bg-blue-600 text-lg"
+                                                    onClick={() => {
+                                                        setShowIntegrationModal(
+                                                            false,
+                                                        );
+                                                        setIntegrationModeOn(
+                                                            true,
+                                                        );
+                                                    }}>
+                                                    Yes
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setShowIntegrationModal(
+                                                            false,
+                                                        );
+                                                        setIntegrationModeOn(
+                                                            false,
+                                                        );
+                                                    }}
+                                                    className="rounded-full px-8 text-lg">
+                                                    No
+                                                </Button>
+                                            </div>
                                         </DialogContent>
                                     </Dialog>
 
@@ -247,10 +302,16 @@ export function InsuranceAdviceCard() {
                                                     id="sum-assured"
                                                     type="number"
                                                     className="flex-1"
+                                                    disabled={
+                                                        integrationModeOn
+                                                    }
                                                 />
                                                 <Checkbox
                                                     aria-label="Sum Assured option"
                                                     className="size-5 border-[3px]"
+                                                    disabled={
+                                                        integrationModeOn
+                                                    }
                                                 />
                                                 <span>N.A.</span>
                                             </div>
@@ -262,6 +323,7 @@ export function InsuranceAdviceCard() {
                                             <Input
                                                 id="policy-term"
                                                 type="number"
+                                                disabled={integrationModeOn}
                                             />
                                         </Field>
                                     </div>
@@ -275,6 +337,7 @@ export function InsuranceAdviceCard() {
                                             <Input
                                                 id="premium-term"
                                                 type="number"
+                                                disabled={integrationModeOn}
                                             />
                                         </Field>
                                         <Field>
@@ -285,6 +348,7 @@ export function InsuranceAdviceCard() {
                                             <Input
                                                 id="min-investment"
                                                 type="number"
+                                                disabled={integrationModeOn}
                                             />
                                         </Field>
                                     </div>
@@ -295,7 +359,11 @@ export function InsuranceAdviceCard() {
                                             <FieldLabel htmlFor="currency">
                                                 Currency
                                             </FieldLabel>
-                                            <Select defaultValue="sgd">
+                                            <Select
+                                                defaultValue="sgd"
+                                                disabled={
+                                                    integrationModeOn
+                                                }>
                                                 <SelectTrigger
                                                     id="currency"
                                                     className="w-full">
@@ -318,6 +386,7 @@ export function InsuranceAdviceCard() {
                                             <Input
                                                 id="premium-amount"
                                                 type="number"
+                                                disabled={integrationModeOn}
                                             />
                                         </Field>
                                     </div>
@@ -327,7 +396,9 @@ export function InsuranceAdviceCard() {
                                         <p className="text-sm font-medium self-start">
                                             Additional add-on rider
                                         </p>
-                                        <Button className="rounded-full px-12 bg-blue-600 text-white hover:bg-blue-500">
+                                        <Button
+                                            className="rounded-full px-12 bg-blue-600 text-white hover:bg-blue-500"
+                                            disabled={integrationModeOn}>
                                             + Additional add-on rider
                                         </Button>
                                     </div>
@@ -359,6 +430,9 @@ export function InsuranceAdviceCard() {
                                                                             ? null
                                                                             : opt,
                                                                     )
+                                                                }
+                                                                disabled={
+                                                                    integrationModeOn
                                                                 }
                                                             />
                                                             <FieldLabel
@@ -407,6 +481,21 @@ export function InsuranceAdviceCard() {
                                         </Field>
                                     </div>
 
+                                    {integrationModeOn && (
+                                        <>
+                                            <div className="flex justify-center py-4">
+                                                <Button className="rounded-full px-8 bg-blue-600 text-white hover:bg-blue-500">
+                                                    Create Quotation
+                                                </Button>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground text-center">
+                                                * The above fields will be
+                                                auto-populated from Ezsub
+                                                system
+                                            </p>
+                                        </>
+                                    )}
+
                                     {/* Settlement Mode */}
                                     <Field>
                                         <FieldLabel className="mb-2 block">
@@ -433,6 +522,9 @@ export function InsuranceAdviceCard() {
                                                                         ? null
                                                                         : opt,
                                                                 )
+                                                            }
+                                                            disabled={
+                                                                integrationModeOn
                                                             }
                                                         />
                                                         <FieldLabel
@@ -462,6 +554,7 @@ export function InsuranceAdviceCard() {
                                             id="notes"
                                             rows={12}
                                             className="min-h-[300px]"
+                                            disabled={integrationModeOn}
                                         />
                                     </Field>
                                 </FieldGroup>
