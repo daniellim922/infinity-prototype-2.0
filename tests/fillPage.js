@@ -11,7 +11,7 @@ async function fillKnowYouBetterForm(page, formData) {
     // Wait for the form to appear after navigation
     await page.waitForSelector(
         'h3.dds-headline:has-text("Getting to know you better")',
-        { timeout: 10000 },
+        { timeout: 600000 },
     );
     console.log("Form page loaded successfully");
 

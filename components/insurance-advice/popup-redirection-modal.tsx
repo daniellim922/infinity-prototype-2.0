@@ -54,17 +54,12 @@ export function PopupRedirectionModal({
             try {
                 const res = await fetch("/api/aia-quote-result");
                 const data = await res.json();
-                if (
-                    data?.premiumTerm != null ||
-                    data?.sumAssured != null ||
-                    data?.premiums != null
-                ) {
-                    if (pollIntervalRef.current) {
-                        clearInterval(pollIntervalRef.current);
-                        pollIntervalRef.current = null;
-                    }
-                    console.log("AIA quote result received:", data);
+
+                if (pollIntervalRef.current) {
+                    clearInterval(pollIntervalRef.current);
+                    pollIntervalRef.current = null;
                 }
+                console.log("AIA quote result received:", data);
             } catch {
                 // ignore poll errors
             }

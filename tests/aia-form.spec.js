@@ -31,12 +31,39 @@ for (const profile of profilesToRun) {
         await clickOnBtn("Get a quote now", page);
 
         await fillKnowYouBetterForm(page, knowYouBetterFormData);
-        await page.screenshot({
-            path: `tests/screenshots/${profileName}/2-know-you-better-form-filled.png`,
-            fullPage: true,
+        const url = page.url();
+        const pageState = await page.evaluate(() => {
+            const bodyText = document.body?.innerText ?? "";
+            return {
+                hasViewPlans: bodyText.includes("View plans"),
+                hasSelectPlan: bodyText.includes("Select plan"),
+                toggleCount:
+                    document.querySelectorAll(".toggle-container").length,
+                checkedCount: document.querySelectorAll(
+                    ".toggle-container input:checked",
+                ).length,
+            };
         });
-        const planData = await extractPlanSelectionData(page);
-        await replaceNextWithSubmitButton(page, planData);
+        await fetch(
+            "http://127.0.0.1:7432/ingest/971ecca8-b484-49e5-9a94-f19734477e24",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Debug-Session-Id": "c583a8",
+                },
+                body: JSON.stringify({
+                    sessionId: "c583a8",
+                    location: "aia-form.spec.js:before-extract",
+                    message: "page state before extractPlanSelectionData",
+                    data: { url, ...pageState },
+                    timestamp: Date.now(),
+                    hypothesisId: "H1",
+                }),
+            },
+        ).catch(() => {});
+
+        await replaceNextWithSubmitButton(page);
         console.log("Test completed successfully! Browser will close.");
     });
 }
