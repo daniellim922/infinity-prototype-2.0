@@ -21,6 +21,7 @@ import {
     FOR_WHOM_OPTIONS,
     SETTLEMENT_MODE_OPTIONS,
 } from "./constants";
+import type { AiaQuoteResultPayload } from "./popup-redirection-modal";
 
 interface InsuranceAdviceSheetProps {
     premiumFrequency: string | null;
@@ -34,6 +35,10 @@ interface InsuranceAdviceSheetProps {
     onInsurerChange: (v: string) => void;
     onIntegrationSwitchChange: (checked: boolean) => void;
     onCreateQuotation: () => void;
+    syncedQuoteData?: AiaQuoteResultPayload | null;
+    onSaveAdvice?: () => void;
+    notes?: string;
+    onNotesChange?: (value: string) => void;
 }
 
 export function InsuranceAdviceSheet({
@@ -48,6 +53,10 @@ export function InsuranceAdviceSheet({
     onInsurerChange,
     onIntegrationSwitchChange,
     onCreateQuotation,
+    syncedQuoteData,
+    onSaveAdvice,
+    notes = "",
+    onNotesChange,
 }: InsuranceAdviceSheetProps) {
     const showIntegrationSwitch =
         insurer !== null &&
@@ -80,11 +89,16 @@ export function InsuranceAdviceSheet({
                         </Field>
                         <div className="grid grid-cols-2 gap-4 items-end">
                             <Field>
-                                <FieldLabel htmlFor="insurer">Insurer</FieldLabel>
+                                <FieldLabel htmlFor="insurer">
+                                    Insurer
+                                </FieldLabel>
                                 <Select
                                     value={insurer ?? undefined}
-                                    onValueChange={onInsurerChange}>
-                                    <SelectTrigger id="insurer" className="w-full">
+                                    onValueChange={onInsurerChange}
+                                    disabled={integrationModeOn}>
+                                    <SelectTrigger
+                                        id="insurer"
+                                        className="w-full">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -130,7 +144,13 @@ export function InsuranceAdviceSheet({
                                     <FieldLabel htmlFor="plan">
                                         Plan Recommended
                                     </FieldLabel>
-                                    <Select disabled={integrationModeOn}>
+                                    <Select
+                                        value={
+                                            syncedQuoteData
+                                                ? "ultimate-critical-cover"
+                                                : undefined
+                                        }
+                                        disabled={integrationModeOn}>
                                         <SelectTrigger
                                             id="plan"
                                             className="w-full">
@@ -151,7 +171,13 @@ export function InsuranceAdviceSheet({
                                     <FieldLabel htmlFor="plan">
                                         Plan Recommended
                                     </FieldLabel>
-                                    <Select disabled={integrationModeOn}>
+                                    <Select
+                                        value={
+                                            syncedQuoteData
+                                                ? "ultimate-critical-cover"
+                                                : undefined
+                                        }
+                                        disabled={integrationModeOn}>
                                         <SelectTrigger
                                             id="plan"
                                             className="w-full">
@@ -175,9 +201,14 @@ export function InsuranceAdviceSheet({
                                 <div className="flex items-center gap-2">
                                     <Input
                                         id="sum-assured"
-                                        type="number"
+                                        type="text"
                                         className="flex-1"
                                         disabled={integrationModeOn}
+                                        value={
+                                            syncedQuoteData?.planData
+                                                ?.insuredAmount ?? ""
+                                        }
+                                        readOnly
                                     />
                                     <Checkbox
                                         aria-label="Sum Assured option"
@@ -195,6 +226,11 @@ export function InsuranceAdviceSheet({
                                     id="policy-term"
                                     type="text"
                                     disabled={integrationModeOn}
+                                    value={
+                                        syncedQuoteData?.planData
+                                            ?.coverageTerm ?? ""
+                                    }
+                                    readOnly
                                 />
                             </Field>
                         </div>
@@ -206,8 +242,13 @@ export function InsuranceAdviceSheet({
                                 </FieldLabel>
                                 <Input
                                     id="premium-term"
-                                    type="number"
+                                    type="text"
                                     disabled={integrationModeOn}
+                                    value={
+                                        syncedQuoteData?.planData
+                                            ?.premiumTerm ?? ""
+                                    }
+                                    readOnly
                                 />
                             </Field>
                             <Field>
@@ -228,7 +269,7 @@ export function InsuranceAdviceSheet({
                                     Currency
                                 </FieldLabel>
                                 <Select
-                                    defaultValue="sgd"
+                                    value="sgd"
                                     disabled={integrationModeOn}>
                                     <SelectTrigger
                                         id="currency"
@@ -247,8 +288,16 @@ export function InsuranceAdviceSheet({
                                 </FieldLabel>
                                 <Input
                                     id="premium-amount"
-                                    type="number"
+                                    type="text"
                                     disabled={integrationModeOn}
+                                    value={
+                                        syncedQuoteData?.premiums
+                                            ?.totalAmount ??
+                                        syncedQuoteData?.premiums
+                                            ?.basicPlanAmount ??
+                                        ""
+                                    }
+                                    readOnly
                                 />
                             </Field>
                         </div>
@@ -278,7 +327,9 @@ export function InsuranceAdviceSheet({
                                                 id={`freq-${opt.toLowerCase().replace(/\s+/g, "-")}`}
                                                 name="premium-frequency"
                                                 className="size-5 border-[3px]"
-                                                checked={premiumFrequency === opt}
+                                                checked={
+                                                    premiumFrequency === opt
+                                                }
                                                 onCheckedChange={() =>
                                                     setPremiumFrequency(
                                                         premiumFrequency === opt
@@ -352,9 +403,7 @@ export function InsuranceAdviceSheet({
                             </FieldLabel>
                             <div className="flex flex-col gap-3">
                                 {SETTLEMENT_MODE_OPTIONS.map((opt) => (
-                                    <Field
-                                        key={opt}
-                                        orientation="horizontal">
+                                    <Field key={opt} orientation="horizontal">
                                         <Checkbox
                                             id={`settlement-${opt.toLowerCase().replace(/[\/\s]+/g, "-")}`}
                                             name="settlement-mode"
@@ -367,7 +416,6 @@ export function InsuranceAdviceSheet({
                                                         : opt,
                                                 )
                                             }
-                                            disabled={integrationModeOn}
                                         />
                                         <FieldLabel
                                             htmlFor={`settlement-${opt.toLowerCase().replace(/[\/\s]+/g, "-")}`}
@@ -392,7 +440,10 @@ export function InsuranceAdviceSheet({
                                 id="notes"
                                 rows={12}
                                 className="min-h-[300px]"
-                                disabled={integrationModeOn}
+                                value={notes}
+                                onChange={(e) =>
+                                    onNotesChange?.(e.target.value)
+                                }
                             />
                         </Field>
                     </FieldGroup>
@@ -400,7 +451,8 @@ export function InsuranceAdviceSheet({
                 <div className="shrink-0 border-t p-4 flex justify-center">
                     <Button
                         size="lg"
-                        className="w-fit rounded-full bg-blue-700 text-white hover:bg-blue-600 px-24 py-6 text-base">
+                        className="w-fit rounded-full bg-blue-700 text-white hover:bg-blue-600 px-24 py-6 text-base"
+                        onClick={onSaveAdvice}>
                         Save Insurance Advice
                     </Button>
                 </div>

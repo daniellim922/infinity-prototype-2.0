@@ -4,7 +4,7 @@ export const PREMIUM_FREQUENCY_OPTIONS = [
     "Monthly",
     "Quarterly",
     "Semi-Annual",
-    "Yearly",
+    "Annual",
     "Single Premium",
 ] as const;
 

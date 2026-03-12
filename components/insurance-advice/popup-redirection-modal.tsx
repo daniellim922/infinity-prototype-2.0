@@ -12,14 +12,32 @@ import { Tabs } from "radix-ui";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export interface AiaQuoteResultPayload {
+    planData?: {
+        premiumTerm?: string | null;
+        premiumFrequency?: string | null;
+        coverageTerm?: string | null;
+        insuredAmount?: string | null;
+    };
+    premiums?: {
+        totalAmount?: string | null;
+        basicPlanAmount?: string | null;
+        uccEnhancerAmount?: string | null;
+        ecpwpAmount?: string | null;
+        cpwpAmount?: string | null;
+    };
+}
+
 interface PopupRedirectionModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onQuoteReceived?: (data: AiaQuoteResultPayload) => void;
 }
 
 export function PopupRedirectionModal({
     open,
     onOpenChange,
+    onQuoteReceived,
 }: PopupRedirectionModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -35,16 +53,15 @@ export function PopupRedirectionModal({
         setIsLoading(true);
         setError(null);
         try {
+            await fetch("/api/aia-quote-result", { method: "DELETE" });
             const res = await fetch("/api/run-aia-form", { method: "POST" });
             const data = await res.json();
             if (!res.ok) {
                 throw new Error(data.details || data.error || "Failed to run");
             }
-            pollForQuoteResult();
+            await pollForQuoteResult();
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong");
-        } finally {
-            // setIsLoading(false);
         }
     }
 
@@ -54,12 +71,18 @@ export function PopupRedirectionModal({
             try {
                 const res = await fetch("/api/aia-quote-result");
                 const data = await res.json();
-
-                if (pollIntervalRef.current) {
-                    clearInterval(pollIntervalRef.current);
-                    pollIntervalRef.current = null;
+                console.log("data", data);
+                const hasResult =
+                    data?.planData != null || data?.premiums != null;
+                if (hasResult) {
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current);
+                        pollIntervalRef.current = null;
+                    }
+                    setIsLoading(false);
+                    onQuoteReceived?.(data);
+                    onOpenChange(false);
                 }
-                console.log("AIA quote result received:", data);
             } catch {
                 // ignore poll errors
             }
@@ -151,7 +174,7 @@ export function PopupRedirectionModal({
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 size-5 animate-spin" />
-                                Opening AIA form...
+                                Syncing AIA form...
                             </>
                         ) : (
                             "OK"

@@ -19,3 +19,8 @@ export async function POST(request: Request) {
 export async function GET() {
     return NextResponse.json(latestQuoteResult ?? { data: null });
 }
+
+export async function DELETE() {
+    latestQuoteResult = null;
+    return NextResponse.json({ success: true });
+}
