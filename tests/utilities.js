@@ -390,6 +390,9 @@ async function replaceNextWithSubmitButton(page) {
 
     await page.exposeFunction("__recheckAndReplace", async () => {
         try {
+            await page
+                .getByRole("button", { name: "Next" })
+                .waitFor({ state: "visible", timeout: 10000 });
             const newPlanData = await extractPlanSelectionData(page);
             const newPremiums = await extractPremiums(page);
             await page.evaluate(applyReplacement, {
@@ -404,8 +407,6 @@ async function replaceNextWithSubmitButton(page) {
     await page.evaluate(() => {
         const DEBOUNCE_MS = 400;
         let timeoutId = null;
-        const summary = document.querySelector(".summary-content");
-        if (!summary) return;
         const isOurMutation = (nodes) =>
             Array.from(nodes).some(
                 (n) =>
@@ -429,7 +430,7 @@ async function replaceNextWithSubmitButton(page) {
                 }
             }, DEBOUNCE_MS);
         });
-        observer.observe(summary, {
+        observer.observe(document.body, {
             childList: true,
             subtree: true,
         });

@@ -3,11 +3,7 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { IntegrationModal } from "@/components/insurance-advice/integration-modal";
 import { DeclarationDialog } from "@/components/insurance-advice/declaration-dialog";
 import {
@@ -67,25 +63,24 @@ export function InsuranceAdviceCard() {
         setSheetOpen(true);
     }, []);
 
-    const handleQuoteReceived = useCallback(
-        (data: AiaQuoteResultPayload) => {
-            setAiaQuoteResult(data);
-            const freqRaw = data?.planData?.premiumFrequency;
-            if (freqRaw != null && String(freqRaw).trim() !== "") {
-                const normalized = (PREMIUM_FREQUENCY_OPTIONS as readonly string[]).find(
-                    (opt) =>
-                        opt.toLowerCase().trim() ===
-                        String(freqRaw).toLowerCase().trim(),
-                );
-                if (normalized) setPremiumFrequency(normalized);
-            }
-            setNotes(
-                "This is an example text that is prefilled based of the policy that is chosen",
+    const handleQuoteReceived = useCallback((data: AiaQuoteResultPayload) => {
+        setAiaQuoteResult(data);
+        const freqRaw = data?.planData?.premiumFrequency;
+        if (freqRaw != null && String(freqRaw).trim() !== "") {
+            const normalized = (
+                PREMIUM_FREQUENCY_OPTIONS as readonly string[]
+            ).find(
+                (opt) =>
+                    opt.toLowerCase().trim() ===
+                    String(freqRaw).toLowerCase().trim(),
             );
-            setSheetOpen(true);
-        },
-        [],
-    );
+            if (normalized) setPremiumFrequency(normalized);
+        }
+        setNotes(
+            "This is an example text that is prefilled based of the policy that is chosen",
+        );
+        setSheetOpen(true);
+    }, []);
 
     const handleSaveAdvice = useCallback(() => {
         const planData = aiaQuoteResult?.planData;
@@ -95,10 +90,12 @@ export function InsuranceAdviceCard() {
             insurer: insurer ?? "aia",
             planLabel: "Ultimate Critical Cover",
             sumAssured: planData?.insuredAmount ?? null,
-            premiumAmount: premiums?.totalAmount ?? premiums?.basicPlanAmount ?? null,
+            premiumAmount:
+                premiums?.totalAmount ?? premiums?.basicPlanAmount ?? null,
             premiumTerm: planData?.premiumTerm ?? null,
             coverageTerm: planData?.coverageTerm ?? null,
-            premiumFrequency: premiumFrequency ?? planData?.premiumFrequency ?? null,
+            premiumFrequency:
+                premiumFrequency ?? planData?.premiumFrequency ?? null,
             forWhom: forWhom ?? null,
             settlementMode: settlementMode ?? null,
             notes: notes || undefined,
@@ -146,7 +143,9 @@ export function InsuranceAdviceCard() {
                                         onEdit={() => handleEditAdvice(advice)}
                                         onDelete={() =>
                                             setSavedAdvices((prev) =>
-                                                prev.filter((a) => a.id !== advice.id),
+                                                prev.filter(
+                                                    (a) => a.id !== advice.id,
+                                                ),
                                             )
                                         }
                                     />
@@ -159,11 +158,12 @@ export function InsuranceAdviceCard() {
                     open={sheetOpen}
                     onOpenChange={(open) => {
                         if (open) setSheetOpen(true);
-                        else if (!showPopupRedirectionModal) setSheetOpen(false);
+                        else if (!showPopupRedirectionModal)
+                            setSheetOpen(false);
                     }}>
                     <SheetTrigger asChild>
                         <Button
-                            className="rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                            className="rounded-full bg-blue-700 text-white hover:bg-blue-600"
                             onClick={() => {
                                 setEditingAdviceId(null);
                                 setPremiumFrequency(null);
