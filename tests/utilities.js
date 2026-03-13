@@ -300,9 +300,10 @@ async function extractPremiums(page) {
     return extractedAmounts;
 }
 /**
- * Hide the red Next button and inject a blue Submit button. On Submit click, sends
- * { planData, premiums } to the API, then resolves. Re-runs whenever the summary
- * DOM changes (MutationObserver) so a newly shown Next button is replaced and payload stays current.
+ * Hide the red Next button and inject a blue Submit button. On Submit click,
+ * extracts planData and premiums, sends { planData, premiums } to the API, then resolves.
+ * Re-injects the Submit button whenever the summary DOM changes (MutationObserver)
+ * so a newly shown Next button is replaced.
  * Call after navigating to the page with "Total to be paid today" and the Next button.
  * Resolves only after the user clicks Submit and data is sent (browser stays open until then).
  */
@@ -331,19 +332,32 @@ async function replaceNextWithSubmitButton(page) {
         }
     });
 
+    await page.exposeFunction("__onSubmitClick", async () => {
+        try {
+            const planData = await extractPlanSelectionData(page);
+            const premiums = await extractPremiums(page);
+            console.log(planData, premiums);
+            await fetch(`${apiUrl}/api/aia-quote-result`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planData, premiums }),
+            });
+        } finally {
+            resolveSubmission?.();
+        }
+    });
+
     await page
         .getByRole("button", { name: "Next" })
         .waitFor({ state: "visible" });
 
-    const applyReplacement = (payload) => {
+    const applyReplacement = () => {
         const existing = document.querySelector("[data-injected-submit]");
         if (existing) existing.remove();
         const nextBtn = document.querySelector(
             ".summary-content button[type='submit']",
         );
         if (!nextBtn) return false;
-        const planData = payload.planData;
-        const premiums = payload.premiums;
         nextBtn.style.display = "none";
         const wrapper = nextBtn.closest(".flex");
         const submitBtn = document.createElement("button");
@@ -357,30 +371,21 @@ async function replaceNextWithSubmitButton(page) {
             '<span class="dds-button__label body-1 body-1__semibold dds-button__label--underline">Submit</span>';
         submitBtn.addEventListener("click", async () => {
             const summary = document.querySelector(".summary-content");
-            const allDivs = summary
-                ? [...summary.querySelectorAll("div")]
-                : [];
+            const allDivs = summary ? [...summary.querySelectorAll("div")] : [];
             const totalLabel = allDivs.find((d) =>
                 d.textContent?.includes("Total to be paid today"),
             );
             if (totalLabel) totalLabel.click();
             await new Promise((r) => setTimeout(r));
-            if (typeof window.sendQuoteData === "function") {
-                await window.sendQuoteData({ planData, premiums });
+            if (typeof window.__onSubmitClick === "function") {
+                await window.__onSubmitClick();
             }
         });
         wrapper?.appendChild(submitBtn);
         return true;
     };
 
-    const planData = await extractPlanSelectionData(page);
-    const premiums = await extractPremiums(page);
-    console.log(planData, premiums);
-
-    const injected = await page.evaluate(applyReplacement, {
-        planData,
-        premiums,
-    });
+    const injected = await page.evaluate(applyReplacement);
 
     if (!injected) {
         throw new Error(
@@ -393,14 +398,9 @@ async function replaceNextWithSubmitButton(page) {
             await page
                 .getByRole("button", { name: "Next" })
                 .waitFor({ state: "visible", timeout: 10000 });
-            const newPlanData = await extractPlanSelectionData(page);
-            const newPremiums = await extractPremiums(page);
-            await page.evaluate(applyReplacement, {
-                planData: newPlanData,
-                premiums: newPremiums,
-            });
+            await page.evaluate(applyReplacement);
         } catch {
-            // Next not present or extract failed; no-op
+            // Next not present or replace failed; no-op
         }
     });
 
@@ -417,7 +417,8 @@ async function replaceNextWithSubmitButton(page) {
         const observer = new MutationObserver((mutationsList) => {
             const causedByUs = mutationsList.some(
                 (m) =>
-                    isOurMutation(m.addedNodes) || isOurMutation(m.removedNodes),
+                    isOurMutation(m.addedNodes) ||
+                    isOurMutation(m.removedNodes),
             );
             if (timeoutId) clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {

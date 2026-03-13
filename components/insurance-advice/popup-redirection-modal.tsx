@@ -71,7 +71,6 @@ export function PopupRedirectionModal({
             try {
                 const res = await fetch("/api/aia-quote-result");
                 const data = await res.json();
-                console.log("data", data);
                 const hasResult =
                     data?.planData != null || data?.premiums != null;
                 if (hasResult) {
